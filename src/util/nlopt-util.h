@@ -82,7 +82,10 @@ extern "C" {
         double xtol_rel;
         const double *xtol_abs;
         const double *x_weights;
-        int *nevals_p, maxeval;
+        int *nevals_p;
+        int maxeval;
+        int *niters_p;
+        int maxiter;
         double maxtime, start;
         int *force_stop;
         char **stop_msg;        /* pointer to msg string to update */
@@ -93,10 +96,14 @@ extern "C" {
     extern int nlopt_stop_dx(const nlopt_stopping * stop, const double *x, const double *dx);
     extern int nlopt_stop_xs(const nlopt_stopping * stop, const double *xs, const double *oldxs, const double *scale_min, const double *scale_max);
     extern int nlopt_stop_evals(const nlopt_stopping * stop);
+    extern int nlopt_stop_iters(const nlopt_stopping * stop);
     extern int nlopt_stop_time_(double start, double maxtime);
     extern int nlopt_stop_time(const nlopt_stopping * stop);
     extern int nlopt_stop_evalstime(const nlopt_stopping * stop);
+    extern int nlopt_stop_iterstime(const nlopt_stopping * stop);
     extern int nlopt_stop_forced(const nlopt_stopping * stop);
+
+    extern void nlopt_stop_copyinit(nlopt_stopping* stop, const nlopt_opt opt);
 
 /* like vsprintf, but reallocs p to whatever size is needed */
     extern char *nlopt_vsprintf(char *p, const char *format, va_list ap);

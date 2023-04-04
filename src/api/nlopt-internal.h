@@ -43,6 +43,8 @@ extern "C" {
 
         nlopt_func f;
         void *f_data;           /* objective function to minimize */
+        nlopt_progress prog;    /* progress callback at the end of each optimization loop */
+        void* prog_data;    /* progress callback at the end of each optimization loop */
         nlopt_precond pre;      /* optional preconditioner for f (NULL if none) */
         int maximize;           /* nonzero if we are maximizing, not minimizing */
 
@@ -68,6 +70,8 @@ extern "C" {
         double *x_weights;      /* weights for relative x tolerance */
         int maxeval;            /* max # evaluations */
         int numevals;           /* number of evaluations */
+        int maxiter;            /* max iterations, currently ONLY valid for LBFGS */
+        int numiters;           /* number of iterations */
         double maxtime;         /* max time (seconds) */
 
         int force_stop;         /* if nonzero, force a halt the next time we

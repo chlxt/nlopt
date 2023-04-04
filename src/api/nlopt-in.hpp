@@ -52,6 +52,7 @@ namespace nlopt {
 
   typedef nlopt_func func; // nlopt::func synoynm
   typedef nlopt_mfunc mfunc; // nlopt::mfunc synoynm
+  typedef nlopt_progress progress; // nlopt::progress synoynm
 
   // alternative to nlopt_func that takes std::vector<double>
   // ... unfortunately requires a data copy
@@ -100,6 +101,7 @@ namespace nlopt {
       mfunc mf; func f; void *f_data;
       functor_type functor;
       vfunc vf;
+      progress prog;
       nlopt_munge munge_destroy, munge_copy; // non-NULL for SWIG wrappers
     } myfunc_data;
 
@@ -329,6 +331,16 @@ namespace nlopt {
       return nlopt_get_dimension(o);
     }
 
+    // Set the callback function
+    void set_progress(progress prog, void *prog_data) {
+      // myfunc_data *d = alloc_and_init_myfunc_data();
+      // d->prog = prog;
+      // d->prog_data = prog_data;
+
+      // mythrow(nlopt_set_progress(o, myprogress, d)); // d freed via o
+      mythrow(nlopt_set_progress(o, prog, prog_data));
+    }
+
     // Set the objective function
     void set_min_objective(func f, void *f_data) {
       myfunc_data *d = alloc_and_init_myfunc_data();
@@ -376,6 +388,18 @@ namespace nlopt {
 
     // for internal use in SWIG wrappers -- variant that
     // takes ownership of f_data, with munging for destroy/copy
+
+    void set_progress(progress prog, void *prog_data,
+			   nlopt_munge md, nlopt_munge mc) {
+      // myfunc_data *d = alloc_and_init_myfunc_data();
+      // d->prog = prog;
+      // d->prog_data = f_data;
+      // d->munge_destroy = md; d->munge_copy = mc;
+
+      // mythrow(nlopt_set_progress(o, myprogress, d)); // d freed via o
+      mythrow(nlopt_set_progress(o, prog, prog_data)); // d freed via o
+    }
+
     void set_min_objective(func f, void *f_data,
 			   nlopt_munge md, nlopt_munge mc) {
       myfunc_data *d = alloc_and_init_myfunc_data();
@@ -556,6 +580,13 @@ namespace nlopt {
     int get_numevals() const {
       if (!o) throw std::runtime_error("uninitialized nlopt::opt");
       return nlopt_get_numevals(o);
+    }
+
+    NLOPT_GETSET(int, maxiter)
+
+    int get_numiters() const {
+      if (!o) throw std::runtime_error("uninitialized nlopt::opt");
+      return nlopt_get_numiters(o);
     }
 
     NLOPT_GETSET(double, maxtime)

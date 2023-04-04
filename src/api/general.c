@@ -182,6 +182,7 @@ const char *nlopt_result_to_string(nlopt_result result)
     case NLOPT_XTOL_REACHED: return "XTOL_REACHED";
     case NLOPT_MAXEVAL_REACHED: return "MAXEVAL_REACHED";
     case NLOPT_MAXTIME_REACHED: return "MAXTIME_REACHED";
+    case NLOPT_MAXITER_REACHED: return "MAXITER_REACHED";
     default: return NULL;
   }
 }

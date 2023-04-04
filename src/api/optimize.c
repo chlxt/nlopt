@@ -436,20 +436,10 @@ static nlopt_result nlopt_optimize_(nlopt_opt opt, double *x, double *minf)
             return NLOPT_INVALID_ARGS;
         }
 
-    stop.n = n;
-    stop.minf_max = opt->stopval;
-    stop.ftol_rel = opt->ftol_rel;
-    stop.ftol_abs = opt->ftol_abs;
-    stop.xtol_rel = opt->xtol_rel;
-    stop.xtol_abs = opt->xtol_abs;
-    stop.x_weights = opt->x_weights;
     opt->numevals = 0;
-    stop.nevals_p = &(opt->numevals);
-    stop.maxeval = opt->maxeval;
-    stop.maxtime = opt->maxtime;
-    stop.start = nlopt_seconds();
-    stop.force_stop = &(opt->force_stop);
-    stop.stop_msg = &(opt->errmsg);
+    opt->numiters = 0;
+    stop.n = n;
+    nlopt_stop_copyinit(&stop, opt);
 
     switch (algorithm) {
     case NLOPT_GN_DIRECT:
@@ -590,17 +580,17 @@ static nlopt_result nlopt_optimize_(nlopt_opt opt, double *x, double *minf)
         }
 
     case NLOPT_LD_LBFGS:
-        return luksan_plis(ni, f, f_data, lb, ub, x, minf, &stop, opt->vector_storage);
+        return luksan_plis(ni, f, f_data, lb, ub, x, minf, opt, opt->vector_storage);
 
     case NLOPT_LD_VAR1:
     case NLOPT_LD_VAR2:
-        return luksan_plip(ni, f, f_data, lb, ub, x, minf, &stop, opt->vector_storage, algorithm == NLOPT_LD_VAR1 ? 1 : 2);
+        return luksan_plip(ni, f, f_data, lb, ub, x, minf, opt, opt->vector_storage, algorithm == NLOPT_LD_VAR1 ? 1 : 2);
 
     case NLOPT_LD_TNEWTON:
     case NLOPT_LD_TNEWTON_RESTART:
     case NLOPT_LD_TNEWTON_PRECOND:
     case NLOPT_LD_TNEWTON_PRECOND_RESTART:
-        return luksan_pnet(ni, f, f_data, lb, ub, x, minf, &stop, opt->vector_storage, 1 + (algorithm - NLOPT_LD_TNEWTON) % 2, 1 + (algorithm - NLOPT_LD_TNEWTON) / 2);
+        return luksan_pnet(ni, f, f_data, lb, ub, x, minf, opt, opt->vector_storage, 1 + (algorithm - NLOPT_LD_TNEWTON) % 2, 1 + (algorithm - NLOPT_LD_TNEWTON) / 2);
 
     case NLOPT_GN_CRS2_LM:
         if (!finite_domain(n, lb, ub))

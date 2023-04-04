@@ -26,6 +26,7 @@
 #include <stdio.h>
 #include <stdarg.h>
 #include "nlopt-util.h"
+#include "nlopt-internal.h"
 
 /* utility routines to implement the various stopping criteria */
 
@@ -138,6 +139,11 @@ int nlopt_stop_evals(const nlopt_stopping * s)
     return (s->maxeval > 0 && *(s->nevals_p) >= s->maxeval);
 }
 
+int nlopt_stop_iters(const nlopt_stopping * s)
+{
+    return (s->maxiter > 0 && *(s->niters_p) >= s->maxiter);
+}
+
 int nlopt_stop_time_(double start, double maxtime)
 {
     return (maxtime > 0 && nlopt_seconds() - start >= maxtime);
@@ -153,9 +159,33 @@ int nlopt_stop_evalstime(const nlopt_stopping * stop)
     return nlopt_stop_evals(stop) || nlopt_stop_time(stop);
 }
 
+int nlopt_stop_iterstime(const nlopt_stopping * stop)
+{
+    return nlopt_stop_iters(stop) || nlopt_stop_time(stop);
+}
+
 int nlopt_stop_forced(const nlopt_stopping * stop)
 {
     return stop->force_stop && *(stop->force_stop);
+}
+
+void nlopt_stop_copyinit(nlopt_stopping* stop, const nlopt_opt opt)
+{
+    // stop->n = n;
+    stop->minf_max = opt->stopval;
+    stop->ftol_rel = opt->ftol_rel;
+    stop->ftol_abs = opt->ftol_abs;
+    stop->xtol_rel = opt->xtol_rel;
+    stop->xtol_abs = opt->xtol_abs;
+    stop->x_weights = opt->x_weights;
+    stop->nevals_p = &(opt->numevals);
+    stop->maxeval = opt->maxeval;
+    stop->niters_p = &(opt->numiters);
+    stop->maxiter = opt->maxiter;
+    stop->maxtime = opt->maxtime;
+    stop->start = nlopt_seconds();
+    stop->force_stop = &(opt->force_stop);
+    stop->stop_msg = &(opt->errmsg);
 }
 
 unsigned nlopt_count_constraints(unsigned p, const nlopt_constraint * c)

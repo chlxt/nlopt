@@ -3,6 +3,7 @@
 #include <math.h>
 #include <string.h>
 #include "luksan.h"
+#include "nlopt-internal.h"
 
 #define MAX2(a,b) ((a) > (b) ? (a) : (b))
 #define MIN2(a,b) ((a) < (b) ? (a) : (b))
@@ -568,10 +569,16 @@ nlopt_result luksan_pnet(int n, nlopt_func f, void *f_data,
 			 const double *lb, const double *ub, /* bounds */
 			 double *x, /* in: initial guess, out: minimizer */
 			 double *minf,
-			 nlopt_stopping *stop,
+			 nlopt_opt opt,
 			 int mf, /* subspace dimension (0 for default) */
 			 int mos1, int mos2) /* 1 or 2 */
 {
+     nlopt_stopping stop_buf;
+     stop_buf.n = (unsigned)n;
+     nlopt_stop_copyinit(&stop_buf, opt);
+
+     nlopt_stopping* stop = &stop_buf;
+
      int i, *ix, nb = 1;
      double *work;
      double *xl, *xu, *gf, *gn, *s, *xo, *go, *xs, *gs, *xm, *gm, *u1, *u2;
@@ -656,6 +663,7 @@ nlopt_result luksan_pnet(int n, nlopt_func f, void *f_data,
 	 case 6: return NLOPT_SUCCESS;
 	 case 12: case 13: return NLOPT_MAXEVAL_REACHED;
 	 case 100: return NLOPT_MAXTIME_REACHED;
+     case 11: return NLOPT_MAXITER_REACHED;
 	 case -999: return NLOPT_FORCED_STOP;
 	 default: return NLOPT_FAILURE;
      }

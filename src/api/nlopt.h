@@ -65,6 +65,12 @@ typedef void (*nlopt_mfunc) (unsigned m, double *result, unsigned n, const doubl
                              double *gradient, /* NULL if not needed */
                              void *func_data);
 
+typedef void (*nlopt_progress)(unsigned iter,
+                             unsigned n,
+                             const double *x,
+			                    void *func_data);
+
+
 /* A preconditioner, which preconditions v at x to return vpre.
    (The meaning of "preconditioning" is algorithm-dependent.) */
 typedef void (*nlopt_precond) (unsigned n, const double *x, const double *v, double *vpre, void *data);
@@ -172,6 +178,7 @@ typedef enum {
     NLOPT_XTOL_REACHED = 4,
     NLOPT_MAXEVAL_REACHED = 5,
     NLOPT_MAXTIME_REACHED = 6,
+    NLOPT_MAXITER_REACHED = 8421,
     NLOPT_NUM_RESULTS           /* not a result, just the number of possible successes */
 } nlopt_result;
 
@@ -208,6 +215,8 @@ NLOPT_EXTERN(nlopt_result) nlopt_optimize(nlopt_opt opt, double *x, double *opt_
 
 NLOPT_EXTERN(nlopt_result) nlopt_set_min_objective(nlopt_opt opt, nlopt_func f, void *f_data);
 NLOPT_EXTERN(nlopt_result) nlopt_set_max_objective(nlopt_opt opt, nlopt_func f, void *f_data);
+
+NLOPT_EXTERN(nlopt_result) nlopt_set_progress(nlopt_opt opt, nlopt_progress prog, void *prog_data);
 
 NLOPT_EXTERN(nlopt_result) nlopt_set_precond_min_objective(nlopt_opt opt, nlopt_func f, nlopt_precond pre, void *f_data);
 NLOPT_EXTERN(nlopt_result) nlopt_set_precond_max_objective(nlopt_opt opt, nlopt_func f, nlopt_precond pre, void *f_data);
@@ -271,6 +280,11 @@ NLOPT_EXTERN(int) nlopt_get_numevals(const nlopt_opt opt);
 
 NLOPT_EXTERN(nlopt_result) nlopt_set_maxtime(nlopt_opt opt, double maxtime);
 NLOPT_EXTERN(double) nlopt_get_maxtime(const nlopt_opt opt);
+
+NLOPT_EXTERN(nlopt_result) nlopt_set_maxiter(nlopt_opt opt, int maxiter);
+NLOPT_EXTERN(int) nlopt_get_maxiter(const nlopt_opt opt);
+
+NLOPT_EXTERN(int) nlopt_get_numiters(const nlopt_opt opt);
 
 NLOPT_EXTERN(nlopt_result) nlopt_force_stop(nlopt_opt opt);
 NLOPT_EXTERN(nlopt_result) nlopt_set_force_stop(nlopt_opt opt, int val);

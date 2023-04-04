@@ -79,6 +79,8 @@ nlopt_opt NLOPT_STDCALL nlopt_create(nlopt_algorithm algorithm, unsigned n)
         opt->n = n;
         opt->f = NULL;
         opt->f_data = NULL;
+        opt->prog = NULL;
+        opt->prog_data = NULL;
         opt->pre = NULL;
         opt->maximize = 0;
         opt->munge_on_destroy = opt->munge_on_copy = NULL;
@@ -98,6 +100,8 @@ nlopt_opt NLOPT_STDCALL nlopt_create(nlopt_algorithm algorithm, unsigned n)
         opt->xtol_abs = NULL;
         opt->maxeval = 0;
         opt->numevals = 0;
+        opt->maxiter = 0;
+        opt->numiters = 0;
         opt->maxtime = 0;
         opt->force_stop = 0;
         opt->force_stop_child = NULL;
@@ -318,6 +322,21 @@ const char *nlopt_nth_param(const nlopt_opt opt, unsigned n)
 }
 
 /*************************************************************************/
+
+
+nlopt_result NLOPT_STDCALL nlopt_set_progress(nlopt_opt opt, nlopt_progress prog, void *prog_data)
+{
+    if (opt) {
+        nlopt_unset_errmsg(opt);
+        // if (opt->munge_on_destroy)
+        //     opt->munge_on_destroy(opt->prog_data); // NOT NEEDED since prog_data is constructed by user
+        opt->prog = prog;
+        opt->prog_data = prog_data;
+        return NLOPT_SUCCESS;
+    }
+    return NLOPT_INVALID_ARGS;
+}
+
 
 nlopt_result NLOPT_STDCALL nlopt_set_precond_min_objective(nlopt_opt opt, nlopt_func f, nlopt_precond pre, void *f_data)
 {
@@ -796,9 +815,10 @@ nlopt_result NLOPT_STDCALL nlopt_get_x_weights(const nlopt_opt opt, double *x_we
 }
 
 GETSET(maxeval, int, maxeval)
-
-    GET(numevals, int, numevals)
- GETSET(maxtime, double, maxtime)
+   GET(numevals, int, numevals)
+GETSET(maxiter, int, maxiter)
+   GET(numiters, int, numiters)
+GETSET(maxtime, double, maxtime)
 
 /*************************************************************************/
 nlopt_result NLOPT_STDCALL nlopt_set_force_stop(nlopt_opt opt, int force_stop)

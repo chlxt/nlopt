@@ -3,6 +3,7 @@
 #include <math.h>
 #include <string.h>
 #include "luksan.h"
+#include "nlopt-internal.h"
 
 #define MAX2(a,b) ((a) > (b) ? (a) : (b))
 #define MIN2(a,b) ((a) < (b) ? (a) : (b))
@@ -107,12 +108,18 @@ static void plis_(int *nf, int *nb, double *x, int *
 		  ix, double *xl, double *xu, double *gf, double *s,
 		  double *xo, double *go, double *uo, double *vo,
 		  double *xmax, double *tolx, double *tolf, double *
-		  tolb, double *tolg, nlopt_stopping *stop,
+		  tolb, double *tolg, nlopt_opt opt,
 		  double *minf_est, double *gmax,
 		  double *f, int *mit, int *mfv, int *iest, int *mf,
 		  int *iterm, stat_common *stat_1,
 		  nlopt_func objgrad, void *objgrad_data)
 {
+     nlopt_stopping stop_buf;
+     stop_buf.n = (unsigned)opt->n;
+     nlopt_stop_copyinit(&stop_buf, opt); // TODO: MAY reset stop-timer
+
+     nlopt_stopping* stop = &stop_buf;
+
     /* System generated locals */
     int i__1;
     double d__1, d__2;
@@ -271,6 +278,8 @@ L11120:
 	goto L11190;
     }
     if (nlopt_stop_time(stop)) { *iterm = 100; goto L11190; }
+    *stop->niters_p = stat_1->nit;
+    // if (nlopt_stop_iters(stop)) { goto L11190; }
     if (kbf > 0 && rmax > 0.) {
 	luksan_pyrmc0__(nf, &n, &ix[1], &gf[1], &eps8, &umax, gmax, &rmax, &
 		iold, &irest);
@@ -411,6 +420,9 @@ L11175:
 	luksan_mxvine__(nf, &ix[1]);
 	luksan_pyadc0__(nf, &n, &x[1], &ix[1], &xl[1], &xu[1], &inew);
     }
+    if(opt->prog) {
+        opt->prog(*stop->niters_p, stop->n, x, opt->prog_data);
+    }
     goto L11120;
 L11190:
     return;
@@ -421,16 +433,22 @@ nlopt_result luksan_plis(int n, nlopt_func f, void *f_data,
 		  const double *lb, const double *ub, /* bounds */
 		  double *x, /* in: initial guess, out: minimizer */
 		  double *minf,
-		  nlopt_stopping *stop,
+		  nlopt_opt opt,
 			 int mf) /* subspace dimension, 0 for default */
 {
+     nlopt_stopping stop_buf;
+     stop_buf.n = (unsigned)n;
+     nlopt_stop_copyinit(&stop_buf, opt); // TODO: MAY reset stop-timer
+
+     nlopt_stopping* stop = &stop_buf;
+
      int i, *ix, nb = 1;
      double *work, *xl, *xu, *xo, *gf, *s, *go, *uo, *vo;
      double gmax, minf_est;
      double xmax = 0; /* no maximum */
      double tolg = 0; /* default gradient tolerance */
      int iest = 0; /* we have no estimate of min function value */
-     int mit = 0; /* default no limit on #iterations */
+     int mit = stop->maxiter;
      int mfv = stop->maxeval;
      stat_common stat;
      int iterm;
@@ -483,7 +501,7 @@ nlopt_result luksan_plis(int n, nlopt_func f, void *f_data,
 	   &stop->ftol_rel,
 	   &stop->minf_max,
 	   &tolg,
-	   stop,
+	   opt,
 
 	   &minf_est, &gmax,
 	   minf,
@@ -504,6 +522,7 @@ nlopt_result luksan_plis(int n, nlopt_func f, void *f_data,
 	 case 6: return NLOPT_SUCCESS;
 	 case 12: case 13: return NLOPT_MAXEVAL_REACHED;
 	 case 100: return NLOPT_MAXTIME_REACHED;
+     case 11: return NLOPT_MAXITER_REACHED;
 	 case -999: return NLOPT_FORCED_STOP;
 	 default: return NLOPT_FAILURE;
      }

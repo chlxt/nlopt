@@ -16,6 +16,9 @@
 %catches(std::runtime_error) nlopt::opt::get_algorithm_name();
 %catches(std::runtime_error) nlopt::opt::get_dimension();
 
+%catches(std::bad_alloc,std::invalid_argument) nlopt::opt::set_progress(progress prog, void *f_data);
+%catches(std::bad_alloc,std::invalid_argument) nlopt::opt::set_progress(progress prog, void *f_data, nlopt_munge md, nlopt_munge mc);
+
 %catches(std::bad_alloc,std::invalid_argument) nlopt::opt::set_min_objective(func f, void *f_data);
 %catches(std::bad_alloc,std::invalid_argument) nlopt::opt::set_min_objective(vfunc vf, void *f_data);
 %catches(std::bad_alloc,std::invalid_argument) nlopt::opt::set_max_objective(func f, void *f_data);
@@ -55,6 +58,7 @@ GETSET_EXCEPT(xtol_rel, double)
 GETSETVEC_EXCEPT(xtol_abs)
 GETSETVEC_EXCEPT(x_weights)
 GETSET_EXCEPT(maxeval, int)
+GETSET_EXCEPT(maxiter, int)
 GETSET_EXCEPT(maxtime, double)
 GETSET_EXCEPT(force_stop, int)
 

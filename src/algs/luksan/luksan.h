@@ -12,15 +12,15 @@ extern "C"
 nlopt_result luksan_plis(int n, nlopt_func f, void *f_data,
                   const double *lb, const double *ub, /* bounds */
                   double *x, /* in: initial guess, out: minimizer */
-                  double *minf,
-		  nlopt_stopping *stop,
-			 int mf);
+				  double *minf,
+				  nlopt_opt opt,
+			 	  int mf);
 
 nlopt_result luksan_plip(int n, nlopt_func f, void *f_data,
 			 const double *lb, const double *ub, /* bounds */
 			 double *x, /* in: initial guess, out: minimizer */
 			 double *minf,
-			 nlopt_stopping *stop,
+			 nlopt_opt opt,
 			 int mf,
 			 int method);
 
@@ -28,7 +28,7 @@ nlopt_result luksan_pnet(int n, nlopt_func f, void *f_data,
 			 const double *lb, const double *ub, /* bounds */
 			 double *x, /* in: initial guess, out: minimizer */
 			 double *minf, 
-			 nlopt_stopping *stop,
+			 nlopt_opt opt,
 			 int mf,
 			 int mos1, int mos2);
 
