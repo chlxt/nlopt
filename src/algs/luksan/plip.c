@@ -115,12 +115,18 @@ static void plip_(int *nf, int *nb, double *x, int *
 		  double *xo, double *go, double *so, double *xm,
 		  double *xr, double *gr, double *xmax, double *tolx,
 		  double *tolf, double *tolb, double *tolg,
-		  nlopt_stopping *stop, double *
+		  nlopt_opt opt, double *
 		  minf_est, double *gmax, double *f, int *mit, int *mfv,
 		  int *iest, int *met, int *mf,
 		  int *iterm, stat_common *stat_1,
 		  nlopt_func objgrad, void *objgrad_data)
 {
+    nlopt_stopping stop_buf;
+    stop_buf.n = (unsigned)opt->n;
+    nlopt_stop_copyinit(&stop_buf, opt); // TODO: MAY reset stop-timer
+
+    nlopt_stopping* stop = &stop_buf;
+
     /* System generated locals */
     int i__1;
     double d__1, d__2;
@@ -290,6 +296,8 @@ L11120:
 	goto L11190;
     }
     if (nlopt_stop_time(stop)) { *iterm = 100; goto L11190; }
+    *stop->niters_p = stat_1->nit;
+    // if (nlopt_stop_iters(stop)) { goto L11190; }
     if (kbf > 0 && rmax > 0.) {
 	luksan_pyrmc0__(nf, &n, &ix[1], &gf[1], &eps8, &umax, gmax, &rmax, &
 		iold, &irest);
@@ -416,6 +424,9 @@ L11175:
     if (kbf > 0) {
 	luksan_pyadc0__(nf, &n, &x[1], &ix[1], &xl[1], &xu[1], &inew);
     }
+    if(opt->prog) {
+        opt->prog(*stop->niters_p, stop->n, x, opt->prog_data);
+    }
     goto L11120;
 L11190:
     return;
@@ -496,7 +507,7 @@ nlopt_result luksan_plip(int n, nlopt_func f, void *f_data,
 	   &stop->ftol_rel,
 	   &stop->minf_max,
 	   &tolg,
-	   stop,
+	   opt,
 
 	   &minf_est, &gmax,
 	   minf,
