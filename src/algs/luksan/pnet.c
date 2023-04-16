@@ -568,7 +568,7 @@ L11075:
 	}
     }
     if(opt->prog) {
-        opt->prog(*stop->niters_p, stop->n, x, opt->prog_data);
+        opt->prog(*stop->niters_p, stop->n, x + 1, opt->prog_data);
     }
     goto L11020;
 L11080:
@@ -597,7 +597,7 @@ nlopt_result luksan_pnet(int n, nlopt_func f, void *f_data,
      double xmax = 0; /* no maximum */
      double tolg = 0; /* default gradient tolerance */
      int iest = 0; /* we have no estimate of min function value */
-     int mit = 0, mfg = 0; /* default no limit on #iterations */
+     int mit = stop->maxiter, mfg = 0;
      int mfv = stop->maxeval;
      stat_common stat;
      int iterm;
